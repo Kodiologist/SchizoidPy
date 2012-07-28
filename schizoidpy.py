@@ -400,6 +400,7 @@ class Task(object):
                 dialog.addText(' ' * 45)
                 dialog.addField(dialog_field_label, width = width)
                 dialog.addText(dialog_error if trying_again else dialog_hint)
+                dialog.inputFields[0].SetFocus()
                 dialog.show()
                 trying_again = True
                   # Not so quite yet, but 'twill be so if we rerun
