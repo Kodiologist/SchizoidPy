@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 from math import sqrt
-from re import match
+from copy import deepcopy
 from datetime import datetime
 from psychopy.monitors import Monitor
 from psychopy.gui import Dlg
@@ -175,6 +175,60 @@ class SchizoidDlg(Dlg):
 
         self.inputFields.append(inputBox)#store this to get data back on OK
         return inputBox
+
+wx_text_wrap_width = 300
+def wrapped_text(parent, string):
+    x = wx.StaticText(parent, -1, string)
+    x.Wrap(wx_text_wrap_width)
+    return x
+
+def box(sizer_of, orientation, *contents):
+    box = wx.BoxSizer(orientation)
+    for c in contents:
+        if   isinstance(c, list):  box.AddMany(c)
+        elif isinstance(c, tuple): box.Add(*c)
+        else:                      box.Add(c)
+    sizer_of.SetSizer(box)
+    return box
+
+class QuestionnaireDialog(wx.Dialog):
+    def __init__(self, parent, title, scale_levels, questions, questions_per_page):
+        wx.Dialog.__init__(self, parent, -1, title, wx.DefaultPosition)
+
+        notebook = wx.Notebook(self, style = wx.BK_DEFAULT)
+        self.questions = deepcopy(questions)
+
+        for qn1 in range(0, len(questions), questions_per_page):
+            panel = wx.Panel(notebook)
+
+            fgs = wx.FlexGridSizer(cols = 1 + len(scale_levels),
+                vgap = 5, hgap = 5)
+            # Add horizontal spaces to make all the response
+            # columns the same width.
+            fgs.Add(wx.Size(0, 0))
+            fgs.AddMany(len(scale_levels) * [wx.Size(100, 0)])
+            # Add the column headers.
+            fgs.Add(wx.Size(0, 0))
+            for s in scale_levels:
+                fgs.Add(wrapped_text(panel, s), 0, wx.ALIGN_CENTER)
+            # Add the questions and radio buttons.
+            for q in self.questions[qn1 : qn1 + questions_per_page]:
+                wx.RadioButton(panel, pos = (-50, -50), style = wx.RB_GROUP)
+                  # Create a hidden radio button so that it appears that no
+                  # button is selected by default.
+                q['buttons'] = map(lambda _: wx.RadioButton(panel, -1), scale_levels)
+                fgs.Add(wrapped_text(panel, q['text']), 0, wx.ALIGN_CENTER_VERTICAL)
+                for b in q['buttons']:
+                    fgs.Add(b, 0, wx.ALIGN_CENTER)
+            # Add some trailing vertical space.
+            fgs.Add(wx.Size(0, 5))
+            panel.SetSizer(fgs)
+
+            notebook.AddPage(panel, "Page %d" % (qn1 / questions_per_page + 1,))
+
+        b = box(self, wx.VERTICAL,
+            notebook,
+            (wx.Button(self, wx.ID_OK), 0, wx.ALIGN_CENTER_HORIZONTAL)).Fit(self)
 
 # ------------------------------------------------------------
 # The Task class
@@ -432,6 +486,31 @@ class Task(object):
             dialog_hint = 'Enter a number.',
             dialog_error = 'Invalid number; please try again.',
             extractor = lambda s: s if s.isdigit() else None)
+
+    def questionnaire_screen(self, dkey, string, scale_levels, questions, questions_per_page = 8):
+        qd = QuestionnaireDialog(None, '', scale_levels, questions, questions_per_page)
+        prompt = self.text(0, .9, string, vAlign = 'top', wrap = 1)
+        with self.timestamps(dkey):
+            while True:
+                self.draw(prompt)
+                qd.CenterOnScreen(wx.BOTH)
+                qd.ShowModal()
+                responses = {}
+                for q in qd.questions:
+                    vs = [x.GetValue() for x in q['buttons']]
+                    if not any(vs): break
+                    responses[q['id']] = vs.index(True) + 1
+                else:
+                    for k, v in responses.items():
+                        self.save(tuplecat(dkey, k), v)
+                    qd.Destroy()
+                    return
+                self.draw(prompt)
+                dialog = SchizoidDlg(title = 'Error')
+                dialog.addText('')
+                dialog.addText('Please answer all of the questions')
+                dialog.addText('')
+                dialog.show()
 
     def write_data(self, path):
         with open(path, "w") as out:
