@@ -190,7 +190,7 @@ class Task(object):
             button_radius = .1, # In norm units
             fixation_cross_length = 50, # Pixels
             fixation_cross_thickness = 5, # Pixels
-            pause_time = .25, # Seconds
+            pause_time = .1, # Seconds
             approx_dialog_box_width = 200, # Pixels
             html_font_name = 'sans-serif',
             html_font_size = 20): # Points
