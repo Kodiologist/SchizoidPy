@@ -412,6 +412,7 @@ class Task(object):
                     continue
                 inp = extractor(inp)
                 if inp is not None:
+                    self.save(dkey, inp)
                     break
         self.pause()
 
