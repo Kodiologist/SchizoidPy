@@ -187,7 +187,6 @@ class Task(object):
     #####################
 
     def __init__(self,
-            likert_scale_max = 9,
             button_radius = .1, # In norm units
             fixation_cross_length = 50, # Pixels
             fixation_cross_thickness = 5, # Pixels
@@ -325,10 +324,13 @@ class Task(object):
         escapeKeys = ['escape'], singleClick = True, showAccept = False,
         **a)
 
-    def likert_scale(self, lo, hi, x = 0, y = -.7): return self.rating_scale(
-        low = 1, lowAnchorText = lo,
-        high = self.likert_scale_max, highAnchorText = hi,
-        pos = (x, y))
+    def likert_scale(self, x = 0, y = -.7,
+            scale_points = 7,
+            anchors = ('min', 'max')):
+        return self.rating_scale(
+            pos = (x, y),
+            low = 1, lowAnchorText = anchors[0],
+            high = scale_points, highAnchorText = anchors[1])
 
     def wait_screen(self, time_to_wait, *stimuli):
         'Display some stimuli for a given amount of time.'
@@ -372,13 +374,16 @@ class Task(object):
         rs = [x.getRating() for x in scales]
         self.save(dkey, rs[0] if len(rs) == 1 else rs)
 
-    def get_rating(self, dkey, string, lo, hi): self.scale_screen(dkey,
-        self.text(0, .3, string),
-        self.likert_scale(lo, hi, y = -.3))
+    def discrete_rating_screen(self, dkey, string, **opts):
+        self.scale_screen(dkey,
+            self.text(0, .3, string),
+            self.likert_scale(**opts))
 
-    def get_string(self, dkey, prompt,
+    def string_entry_screen(self, dkey, prompt,
             dialog_field_label, dialog_hint, dialog_error,
-            extractor, width = None):
+            extractor,
+            trim = True, accept_blank = False,
+            width = None):
         """Ask for a string with the given prompt. The extractor should
         be a function that translates the user's input into
         whatever should go into 'data' or returns None if the input
@@ -396,34 +401,35 @@ class Task(object):
                 dialog.addField(dialog_field_label, width = width)
                 dialog.addText(dialog_error if trying_again else dialog_hint)
                 dialog.show()
-                inp = extractor(dialog.data[0])
+                trying_again = True
+                  # Not so quite yet, but 'twill be so if we rerun
+                  # the loop.
+                inp = dialog.data[0]
+                if trim:
+                    inp = inp.strip()
+                if not accept_blank and (inp.isspace() or inp == ''):
+                    continue
+                inp = extractor(inp)
                 if inp is not None:
-                    self.save(dkey, inp)
                     break
-                else:
-                    trying_again = True
         self.pause()
 
-    def get_text(self, dkey, string):
+    def text_entry_screen(self, dkey, string, accept_blank = False):
         "Ask for arbitrary text with the given prompt."
-        self.get_string(dkey, string, width = 200,
+        self.string_entry_screen(dkey, string, width = 200,
             dialog_field_label = 'Text:',
             dialog_hint = 'Type some text.',
-            dialog_error = '',
+            dialog_error = 'Type some text.',
+            accept_blank = False,
             extractor = lambda s: s)
 
-    def get_nonneg_int(self, dkey, string):
+    def nonneg_int_entry_screen(self, dkey, string):
         "Ask for a nonnegative integer with the given prompt."
-        def extractor(inp):
-            mo = match(r'\s*(\d+)\s*$', inp)
-            if mo:
-                return mo.groups(1)[0]
-            return None
-        self.get_string(dkey, string,
+        self.string_entry_screen(dkey, string,
             dialog_field_label = 'Number:',
             dialog_hint = 'Enter a number.',
             dialog_error = 'Invalid number; please try again.',
-            extractor = extractor)
+            extractor = lambda s: s if s.isdigit() else None)
 
     def write_data(self, path):
         with open(path, "w") as out:
