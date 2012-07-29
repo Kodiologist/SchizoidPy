@@ -241,11 +241,16 @@ class Task(object):
     #####################
 
     def __init__(self,
-            button_radius = .1, # In norm units
+            button_radius = .1, # Norm units
+            okay_button_pos = (0, -.5), # Norm units
             fixation_cross_length = 50, # Pixels
             fixation_cross_thickness = 5, # Pixels
             pause_time = .1, # Seconds
+            string_entry_box_y = -.4, # Norm units
             approx_dialog_box_width = 200, # Pixels
+              # This should be an estimate of how the boxes
+              # appear on your system, not a specification of
+              # what you want.
             font_name = 'Verdana',
             html_font_size = 20): # Points
 
@@ -393,8 +398,10 @@ class Task(object):
         wait(time_to_wait)
 
     def okay_screen(self, dkey, *stimuli):
-        self.button_screen(dkey,
-            *(stimuli + (self.button(0, -.5, 'Next'),)))
+        self.button_screen(dkey, *(stimuli + (self.button(
+            self.okay_button_pos[0],
+            self.okay_button_pos[1],
+            'Next'),)))
 
     def instructions(self, dkey, string, html = False):
         self.okay_screen(dkey,
@@ -451,7 +458,9 @@ class Task(object):
             while True:
                 dialog = SchizoidDlg(
                     title = 'Entry',
-                    pos = (self.screen_width/2 - self.approx_dialog_box_width, .85 * self.screen_height))
+                    pos = (
+                        self.screen_width/2 - self.approx_dialog_box_width,
+                        self.screen_height/2 - self.string_entry_box_y * self.screen_height/2))
                 dialog.addText(' ' * 45)
                 dialog.addField(dialog_field_label, width = width)
                 dialog.addText(dialog_error if trying_again else dialog_hint)
