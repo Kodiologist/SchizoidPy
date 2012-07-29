@@ -103,6 +103,12 @@ class StimGroup(object):
     def draw(self):
         for x in self.stimuli: x.draw()
 
+def init_wx():
+    if 'app' not in globals():
+        globals()['app'] = wx.PySimpleApp()
+          # This is what PsychoPy does if you make a Dlg before
+          # a wx.App exists.
+
 wx_text_wrap_width = 300
 def wrapped_text(parent, string):
     x = wx.StaticText(parent, -1, string)
@@ -499,6 +505,7 @@ class Task(object):
             extractor = lambda s: s if s.isdigit() else None)
 
     def questionnaire_screen(self, dkey, string, scale_levels, questions, questions_per_page = 8):
+        init_wx()
         qd = QuestionnaireDialog(None, '', scale_levels, questions, questions_per_page)
         prompt = self.text(0, .9, string, vAlign = 'top', wrap = 1)
         with self.timestamps(dkey):
