@@ -246,7 +246,7 @@ class Task(object):
             fixation_cross_thickness = 5, # Pixels
             pause_time = .1, # Seconds
             approx_dialog_box_width = 200, # Pixels
-            html_font_name = 'sans-serif',
+            font_name = 'Verdana',
             html_font_size = 20): # Points
 
         vs = locals()
@@ -341,7 +341,8 @@ class Task(object):
     def text(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black'):
         return TextStim(self.win,
             text = string, pos = (x, y), color = color,
-            height = .075, alignHoriz = hAlign, alignVert = vAlign,
+            height = .075, font = self.font_name,
+            alignHoriz = hAlign, alignVert = vAlign,
             wrapWidth = wrap)
 
     def html(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black'):
@@ -362,7 +363,7 @@ class Task(object):
         #if hAlign == 'center':
         #    print pyg.content_width, "vs.", pyg.width
         #    pyg.x = (text._wrapWidthPix - pyg.content_width)/2
-        pyg.font_name = self.html_font_name
+        pyg.font_name = self.font_name
         pyg.font_size = self.html_font_size
         text._pygletTextObj = pyg
         return text
