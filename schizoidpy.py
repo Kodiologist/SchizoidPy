@@ -103,6 +103,21 @@ class StimGroup(object):
     def draw(self):
         for x in self.stimuli: x.draw()
 
+wx_text_wrap_width = 300
+def wrapped_text(parent, string):
+    x = wx.StaticText(parent, -1, string)
+    x.Wrap(wx_text_wrap_width)
+    return x
+
+def box(sizer_of, orientation, *contents):
+    box = wx.BoxSizer(orientation)
+    for c in contents:
+        if   isinstance(c, list):  box.AddMany(c)
+        elif isinstance(c, tuple): box.Add(*c)
+        else:                      box.Add(c)
+    if sizer_of is not None: sizer_of.SetSizer(box)
+    return box
+
 class SchizoidDlg(Dlg):
     """A Dlg without a Cancel button and with the ability to
     set field widths."""
@@ -149,14 +164,12 @@ class SchizoidDlg(Dlg):
         self.inputFieldTypes.append(type(initial))
         if type(initial)==numpy.ndarray:
             initial=initial.tolist() #convert numpy arrays to lists
-        container=wx.GridSizer(cols=2, hgap=10)
         #create label
         labelLength = wx.Size(9*len(label)+16,25)#was 8*until v0.91.4
         inputLabel = wx.StaticText(self,-1,label,
                                         size=labelLength,
                                         style=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
         if len(color): inputLabel.SetForegroundColour(color)
-        container.Add(inputLabel, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
         #create input control
         if type(initial)==bool:
             inputBox = wx.CheckBox(self, -1)
@@ -170,26 +183,14 @@ class SchizoidDlg(Dlg):
         if len(color): inputBox.SetForegroundColour(color)
         if len(tip): inputBox.SetToolTip(wx.ToolTip(tip))
 
-        container.Add(inputBox,1, wx.ALIGN_CENTER_VERTICAL)
-        self.sizer.Add(container, 1, wx.ALIGN_CENTER)
+        self.sizer.Add(
+            box(None, wx.HORIZONTAL,
+                (inputLabel, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT),
+                (inputBox, 0, wx.ALIGN_CENTER_VERTICAL)),
+            1, wx.ALIGN_CENTER)
 
         self.inputFields.append(inputBox)#store this to get data back on OK
         return inputBox
-
-wx_text_wrap_width = 300
-def wrapped_text(parent, string):
-    x = wx.StaticText(parent, -1, string)
-    x.Wrap(wx_text_wrap_width)
-    return x
-
-def box(sizer_of, orientation, *contents):
-    box = wx.BoxSizer(orientation)
-    for c in contents:
-        if   isinstance(c, list):  box.AddMany(c)
-        elif isinstance(c, tuple): box.Add(*c)
-        else:                      box.Add(c)
-    sizer_of.SetSizer(box)
-    return box
 
 class QuestionnaireDialog(wx.Dialog):
     def __init__(self, parent, title, scale_levels, questions, questions_per_page):
