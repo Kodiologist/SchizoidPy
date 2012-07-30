@@ -16,6 +16,11 @@ import numpy
 import json
 from socket import gethostname
 
+standard_actiview_trigger_codes = dict(
+    START_LISTENING = 255,
+    STOP_LISTENING = 256,
+    RESET_PINS = 0)
+
 # ------------------------------------------------------------
 # Private helper functions and classes
 # ------------------------------------------------------------
@@ -236,6 +241,19 @@ class QuestionnaireDialog(wx.Dialog):
             notebook,
             (wx.Button(self, wx.ID_OK), 0, wx.ALIGN_CENTER_HORIZONTAL)).Fit(self)
 
+class PoisonPill: pass
+
+def trigger_worker(queue, trigger_code_delay):
+    from psychopy.parallel import setData
+    while True:
+        trigger_code = queue.get()
+        if trigger_code == PoisonPill:
+            return
+        setData(trigger_code)
+        wait(trigger_code_delay)
+        setData(standard_actiview_trigger_codes['RESET_PINS'])
+        wait(trigger_code_delay)
+
 # ------------------------------------------------------------
 # The Task class
 # ------------------------------------------------------------
@@ -248,6 +266,13 @@ class Task(object):
 
     def __init__(self,
             absolute_timestamps = False,
+            send_actiview_trigger_codes = False,
+              # If this is on, you can use the 'trigger' method
+              # to non-blockingly send EEG trigger signals
+              # through the parallel port to a machine running
+              # BioSemi ActiView. Otherwise, 'trigger' silently
+              # does nothing.
+            trigger_code_delay = .05, # Seconds
             pause_time = .1, # Seconds
             button_radius = .1, # Norm units
             okay_button_pos = (0, -.5), # Norm units
@@ -268,6 +293,13 @@ class Task(object):
         self.data = {}
         self.cur_dkey_prefix = ()
         self.implicitly_draw = []
+
+        if self.send_actiview_trigger_codes:
+            import multiprocessing
+            self.trigger_queue = multiprocessing.Queue()
+            self.trigger_worker = multiprocessing.Process(
+                target = trigger_worker, args = (trigger_queue, trigger_code_delay))
+            self.trigger(standard_actiview_triggers['START_LISTENING'])
 
         pyglet_screen = pyglet.window.get_platform().get_default_display().get_default_screen()
         self.screen_width, self.screen_height = pyglet_screen.width, pyglet_screen.height
@@ -342,6 +374,10 @@ class Task(object):
 
     def start_clock(self):
         self.clock = Clock()
+
+    def trigger(self, code):
+        if self.send_actiview_trigger_codes:
+            self.trigger_queue.put(code)
 
     def get_subject_id(self, window_title):
         dialog = Dlg(title = window_title)
@@ -535,12 +571,19 @@ class Task(object):
                 dialog.addText('')
                 dialog.show()
 
-    def write_data(self, path):
-        # We avoid self.save here in case we're inside a "with o.dkey_prefix".
+    def done(self, write_path):
+    # We avoid self.save here in case we're inside a "with o.dkey_prefix".
+        # Kill the trigger-code worker.
+        if self.send_actiview_trigger_codes:
+            self.trigger(standard_actiview_triggers['STOP_LISTENING'])
+            self.trigger_queue.put(PoisonPill)
+            self.trigger_worker.join()
+        # Save the time.
         if hasattr(self, 'clock'):
             self.data['overall_timing']['clock_duration'] = self.clock.getTime()
         self.data['overall_timing']['done'] = abs_timestamp_str()
-        with open(path, "w") as out:
+        # Write the data to disk.
+        with open(write_path, "w") as out:
             json.dump(self.data, out, sort_keys = True, indent = 2)
 
     #####################
