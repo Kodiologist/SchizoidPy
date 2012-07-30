@@ -4,7 +4,7 @@ from math import sqrt
 from copy import deepcopy
 from datetime import datetime
 from psychopy.monitors import Monitor
-from psychopy.gui import Dlg
+import psychopy.gui; from psychopy.gui import Dlg
 from psychopy.core import Clock, wait
 from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
@@ -103,8 +103,8 @@ class StimGroup(object):
         for x in self.stimuli: x.draw()
 
 def init_wx():
-    if 'app' not in globals():
-        globals()['app'] = wx.PySimpleApp()
+    if not hasattr(psychopy.gui, 'app'):
+        psychopy.gui.app = wx.PySimpleApp()
           # This is what PsychoPy does if you make a Dlg before
           # a wx.App exists.
 
