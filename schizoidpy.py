@@ -5,7 +5,7 @@ from copy import deepcopy
 from datetime import datetime
 from psychopy.monitors import Monitor
 from psychopy.gui import Dlg
-from psychopy.core import wait
+from psychopy.core import Clock, wait
 from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
 from psychopy.visual import \
@@ -30,6 +30,9 @@ def tuplecat(a, b): return (
  (a if isinstance(a, tuple) else (a,)) +
  (b if isinstance(b, tuple) else (b,)))
 
+def abs_timestamp_str():
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")
+
 class dkey_prefix(object):
     def __init__(self, task, my_prefix):
         self.task = task
@@ -43,14 +46,10 @@ class timestamps(object):
    def __init__(self, task, dkey):
        self.task = task
        self.dkey = dkey
-   def timestamp(self, i):
-       with self.task.dkey_prefix('times'):
-           self.task.save(tuplecat(self.dkey, i),
-               datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f"))
    def __enter__(self):
-       self.timestamp(0)
+       self.task.save_timestamp(self.dkey, 0)
    def __exit__(self, _1, _2, _3):
-       self.timestamp(1)
+       self.task.save_timestamp(self.dkey, 1)
 
 class showing(object):
     def __init__(self, task, *stimuli):
@@ -248,16 +247,17 @@ class Task(object):
     #####################
 
     def __init__(self,
+            absolute_timestamps = False,
+            pause_time = .1, # Seconds
             button_radius = .1, # Norm units
             okay_button_pos = (0, -.5), # Norm units
             fixation_cross_length = 50, # Pixels
             fixation_cross_thickness = 5, # Pixels
-            pause_time = .1, # Seconds
             string_entry_box_y = -.4, # Norm units
             approx_dialog_box_width = 200, # Pixels
-              # This should be an estimate of how the boxes
-              # appear on your system, not a specification of
-              # what you want.
+              # This option should be set to an estimate of how
+              # the dialog boxes appear on your system, not what
+              # you want. It's used to position the boxes.
             font_name = 'Verdana',
             html_font_size = 20): # Points
 
@@ -285,7 +285,9 @@ class Task(object):
                 width = self.fixation_cross_thickness, height = self.fixation_cross_length))
 
         self.save(('sys', 'hostname'), gethostname())
-        self.save(('sys', 'resolution'), (self.screen_width, self.screen_height));
+        self.save(('sys', 'resolution'), (self.screen_width, self.screen_height))
+
+        self.save(('overall_timing', 'started'), abs_timestamp_str())
 
     def save(self, key, value):
         """Set a value in data with Perl-style autovivification, so
@@ -337,6 +339,9 @@ class Task(object):
     def hiding(self, *stimuli):
         "Hides stimuli that would be displayed by 'showing'."
         return hiding(self, *stimuli)
+
+    def start_clock(self):
+        self.clock = Clock()
 
     def get_subject_id(self, window_title):
         dialog = Dlg(title = window_title)
@@ -531,6 +536,10 @@ class Task(object):
                 dialog.show()
 
     def write_data(self, path):
+        # We avoid self.save here in case we're inside a "with o.dkey_prefix".
+        if hasattr(self, 'clock'):
+            self.data['overall_timing']['clock_duration'] = self.clock.getTime()
+        self.data['overall_timing']['done'] = abs_timestamp_str()
         with open(path, "w") as out:
             json.dump(self.data, out, sort_keys = True, indent = 2)
 
@@ -538,7 +547,16 @@ class Task(object):
     # Private
     #####################
 
+    def save_timestamp(self, dkey, i):
+        if not self.absolute_timestamps and not hasattr(self, 'clock'):
+            self.start_clock()
+        with self.dkey_prefix('times'):
+            self.save(tuplecat(dkey, i),
+                abs_timestamp_str()
+                    if self.absolute_timestamps
+                    else self.clock.getTime())
+
     def draw(self, *stimuli):
-       for s in self.implicitly_draw: s.draw()
-       for s in stimuli: s.draw()
-       self.win.flip()
+        for s in self.implicitly_draw: s.draw()
+        for s in stimuli: s.draw()
+        self.win.flip()
