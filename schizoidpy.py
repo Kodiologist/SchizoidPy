@@ -86,8 +86,8 @@ class hiding(object):
         self.task.implicitly_draw = self.old_implicitly_draw
 
 class Button(object):
-    def __init__(self, task, x, y, string):
-        self.task, self.x, self.y, self.string = task, x, y, string
+    def __init__(self, task, x, y, string, trigger_code = None):
+        self.task, self.x, self.y, self.string, self.trigger_code = task, x, y, string, trigger_code
         self.circle = Circle(task.win,
             task.button_radius, pos = (x, y),
             lineColor = 'black', lineWidth = 3, edges = 64,
@@ -104,10 +104,13 @@ class Button(object):
         <= self.task.button_radius)
 
     def activated(self):
-        if self.was_pressed or (
-                any(self.task.mouse.getPressed()) and
-                self.inside(self.task.mouse.getPos())):
+        if self.was_pressed:
+            return True
+        if (any(self.task.mouse.getPressed()) and
+            self.inside(self.task.mouse.getPos())):
             self.was_pressed = True
+            if self.trigger_code is not None:
+                self.task.trigger(self.trigger_code)
             return True
         return False
 
@@ -425,8 +428,8 @@ class Task(object):
         text._pygletTextObj = pyg
         return text
         
-    def button(self, x, y, string):
-        return Button(self, x, y, string)
+    def button(self, x, y, string, trigger_code = None):
+        return Button(self, x, y, string, trigger_code)
 
     def rating_scale(self, stretchHoriz = 1.75, **a): return RatingScale(self.win,
         textColor = 'black', lineColor = 'black',
