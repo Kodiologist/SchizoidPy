@@ -1,4 +1,4 @@
-SchizoidPy is a convenience library for using `PsychoPy`_ to do psychology experiments that aren't psychophysics experiments. It's like a GUI library for psychology. You create a ``schizoidpy.Task`` object and then call methods on it to solicit ratings on Likert-type scales, numbers typed into a textbox, and the like. Then you say ``task.write_data('data.json')`` or so to emit the current subject's responses and timing data as JSON.
+SchizoidPy is a convenience library for using `PsychoPy`_ to do psychology experiments that aren't psychophysics experiments. It's like a GUI library for psychology. You create a ``schizoidpy.Task`` object and then call methods on it to solicit ratings on Likert-type scales, numbers typed into a textbox, and the like. Then you say ``task.done('data.json')`` to emit the current subject's responses and timing data as JSON.
 
 You should take the absence of documentation as a hint that I'm not making any guarantees about stability. I wrote this thing for my own use. But see `Survivor`_ for an example task.
 
