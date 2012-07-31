@@ -1,6 +1,5 @@
 # encoding: UTF-8
 
-from math import sqrt
 from copy import deepcopy
 from datetime import datetime
 from socket import gethostname
@@ -99,15 +98,11 @@ class Button(object):
         self.circle.draw()
         self.text.draw()
 
-    def inside(self, (x, y)): return (
-        sqrt((self.x - x)*(self.x - x) + (self.y - y)*(self.y - y))
-        <= self.task.button_radius)
-
     def activated(self):
         if self.was_pressed:
             return True
         if (any(self.task.mouse.getPressed()) and
-            self.inside(self.task.mouse.getPos())):
+            self.circle.contains(self.task.mouse)):
             self.was_pressed = True
             if self.trigger_code is not None:
                 self.task.trigger(self.trigger_code)
