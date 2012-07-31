@@ -3,6 +3,11 @@
 from math import sqrt
 from copy import deepcopy
 from datetime import datetime
+from socket import gethostname
+import json
+import numpy
+import wx
+import pyglet
 from psychopy.monitors import Monitor
 import psychopy.gui; from psychopy.gui import Dlg
 from psychopy.core import Clock, wait
@@ -10,11 +15,6 @@ from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
 from psychopy.visual import \
     Window, Rect, Circle, TextStim, RatingScale
-import pyglet
-import wx
-import numpy
-import json
-from socket import gethostname
 
 standard_actiview_trigger_codes = dict(
     START_LISTENING = 255,
