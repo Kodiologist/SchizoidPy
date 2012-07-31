@@ -22,6 +22,16 @@ standard_actiview_trigger_codes = dict(
     RESET_PINS = 0)
 
 # ------------------------------------------------------------
+# Public helper functions and classes
+# ------------------------------------------------------------
+
+class StimGroup(object):
+    def __init__(self, *stimuli):
+        self.stimuli = stimuli
+    def draw(self):
+        for x in self.stimuli: x.draw()
+
+# ------------------------------------------------------------
 # Private helper functions and classes
 # ------------------------------------------------------------
 
@@ -100,12 +110,6 @@ class Button(object):
             self.was_pressed = True
             return True
         return False
-
-class StimGroup(object):
-    def __init__(self, *stimuli):
-        self.stimuli = stimuli
-    def draw(self):
-        for x in self.stimuli: x.draw()
 
 def init_wx():
     if not hasattr(psychopy.gui, 'app'):
