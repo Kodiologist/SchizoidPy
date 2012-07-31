@@ -26,7 +26,7 @@ standard_actiview_trigger_codes = dict(
 # ------------------------------------------------------------
 
 class StimGroup(object):
-    def __init__(self, *stimuli):
+    def __init__(self, stimuli):
         self.stimuli = stimuli
     def draw(self):
         for x in self.stimuli: x.draw()
@@ -312,13 +312,13 @@ class Task(object):
             winType = 'pyglet', fullscr = False,
             units = 'norm', color = 'white')
         self.mouse = Mouse(win = self.win)
-        self.fixation_cross = StimGroup(
+        self.fixation_cross = StimGroup((
             Rect(self.win, fillColor = 'black', lineColor = 'black',
                 units = 'pix',
                 width = self.fixation_cross_length, height = self.fixation_cross_thickness),
             Rect(self.win, fillColor = 'black', lineColor = 'black',
                 units = 'pix',
-                width = self.fixation_cross_thickness, height = self.fixation_cross_length))
+                width = self.fixation_cross_thickness, height = self.fixation_cross_length)))
 
         self.save(('sys', 'hostname'), gethostname())
         self.save(('sys', 'resolution'), (self.screen_width, self.screen_height))
