@@ -245,15 +245,20 @@ class QuestionnaireDialog(wx.Dialog):
 
 class PoisonPill: pass
 
-def trigger_worker(queue, trigger_code_delay):
-    from psychopy.parallel import setData
+def trigger_worker(queue, trigger_code_delay, inpout32_addr):
+    if inpout32_addr is not None:
+        from ctypes import windll
+        send = lambda x: windll.inpout32.Out32(inpout32_addr, x)
+    else:
+        from psychopy.parallel import setData
+        send = setData
     while True:
         trigger_code = queue.get()
         if trigger_code == PoisonPill:
             return
-        setData(trigger_code)
+        send(trigger_code)
         wait(trigger_code_delay)
-        setData(standard_actiview_trigger_codes['RESET_PINS'])
+        send(standard_actiview_trigger_codes['RESET_PINS'])
         wait(trigger_code_delay)
 
 # ------------------------------------------------------------
@@ -274,6 +279,7 @@ class Task(object):
               # through the parallel port to a machine running
               # BioSemi ActiView. Otherwise, 'trigger' silently
               # does nothing.
+            inpout32_addr = None,
             trigger_code_delay = .05, # Seconds
             pause_time = .1, # Seconds
             button_radius = .1, # Norm units
@@ -300,7 +306,8 @@ class Task(object):
             import multiprocessing
             self.trigger_queue = multiprocessing.Queue()
             self.trigger_worker = multiprocessing.Process(
-                target = trigger_worker, args = (self.trigger_queue, self.trigger_code_delay))
+                target = trigger_worker, args = (self.trigger_queue, self.trigger_code_delay, inpout32_addr))
+            self.trigger_worker.start()
             self.trigger(standard_actiview_trigger_codes['START_LISTENING'])
 
         pyglet_screen = pyglet.window.get_platform().get_default_display().get_default_screen()
