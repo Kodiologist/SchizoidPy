@@ -300,8 +300,8 @@ class Task(object):
             import multiprocessing
             self.trigger_queue = multiprocessing.Queue()
             self.trigger_worker = multiprocessing.Process(
-                target = trigger_worker, args = (trigger_queue, trigger_code_delay))
-            self.trigger(standard_actiview_triggers['START_LISTENING'])
+                target = trigger_worker, args = (self.trigger_queue, self.trigger_code_delay))
+            self.trigger(standard_actiview_trigger_codes['START_LISTENING'])
 
         pyglet_screen = pyglet.window.get_platform().get_default_display().get_default_screen()
         self.screen_width, self.screen_height = pyglet_screen.width, pyglet_screen.height
