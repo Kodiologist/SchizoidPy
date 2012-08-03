@@ -411,7 +411,7 @@ class Task(object):
             alignHoriz = hAlign, alignVert = vAlign,
             wrapWidth = wrap)
 
-    def html(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black'):
+    def html(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black', font_size = None):
         # Note that when hAlign = 'center', the stimuli generated
         # with this method, unlike task.text(), are centered with
         # respect to the entire wrap width, not their actual content
@@ -430,7 +430,7 @@ class Task(object):
         #    print pyg.content_width, "vs.", pyg.width
         #    pyg.x = (text._wrapWidthPix - pyg.content_width)/2
         pyg.font_name = self.font_name
-        pyg.font_size = self.html_font_size
+        pyg.font_size = font_size if font_size is not None else self.html_font_size
         text._pygletTextObj = pyg
         return text
         
