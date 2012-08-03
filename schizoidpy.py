@@ -278,7 +278,11 @@ class Task(object):
               # to non-blockingly send EEG trigger signals
               # through the parallel port to a machine running
               # BioSemi ActiView. Otherwise, 'trigger' silently
-              # does nothing.
+              # does nothing. Beware that this feature uses
+              # the multiprocessing module, so on Windows,
+              # your program will need to be headed with
+              #     if __name__ == '__main__':
+              # or you'll forkbomb yourself.
             inpout32_addr = None,
             trigger_code_delay = .05, # Seconds
             pause_time = .1, # Seconds
