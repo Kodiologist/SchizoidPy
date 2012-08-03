@@ -588,7 +588,7 @@ class Task(object):
     # We avoid self.save here in case we're inside a "with o.dkey_prefix".
         # Kill the trigger-code worker.
         if self.send_actiview_trigger_codes:
-            self.trigger(standard_actiview_triggers['STOP_LISTENING'])
+            self.trigger(standard_actiview_trigger_codes['STOP_LISTENING'])
             self.trigger_queue.put(PoisonPill)
             self.trigger_worker.join()
         # Save the time.
