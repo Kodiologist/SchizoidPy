@@ -2,6 +2,8 @@ SchizoidPy is a convenience library for using `PsychoPy`_ to do psychology exper
 
 You should take the absence of documentation as a hint that I'm not making any guarantees about stability. I wrote this thing for my own use. But see `Survivor`_ for an example task.
 
+Also included in this repository is ``trigger-test.py``, a script for checking whether SchizoidPy's method of sending EEG trigger codes works on your system. It doesn't actually depend on SchizoidPy.
+
 SchizoidPy began life as a spinoff of the generic functions in `Cookie`_.
 
 License
