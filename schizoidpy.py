@@ -286,6 +286,9 @@ class Task(object):
             inpout32_addr = None,
             trigger_code_delay = .05, # Seconds
             pause_time = .1, # Seconds
+            double_draw = False,
+              # Draw everything twice to work around
+              # a graphics bug.
             button_radius = .1, # Norm units
             okay_button_pos = (0, -.5), # Norm units
             fixation_cross_length = 50, # Pixels
@@ -615,4 +618,7 @@ class Task(object):
     def draw(self, *stimuli):
         for s in self.implicitly_draw: s.draw()
         for s in stimuli: s.draw()
+        if self.double_draw:
+            for s in self.implicitly_draw: s.draw()
+            for s in stimuli: s.draw()
         self.win.flip()
