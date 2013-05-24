@@ -630,6 +630,7 @@ class Task(object):
         # Write the data to disk.
         with open(write_path, "w") as out:
             json.dump(self.data, out, sort_keys = True, indent = 2)
+            print >>out
 
     #####################
     # Private
