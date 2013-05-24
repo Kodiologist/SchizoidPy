@@ -509,13 +509,15 @@ class Task(object):
         """Display some stimuli until the subject presses one of
         the keys. 'keys' can be None, a string, a dictionary, or
         some other iterable. If it's a dictionary, the
-        corresponding value is saved. The Escape key is reserved."""
+        corresponding value is saved (and returned). The Escape
+        key is reserved."""
         checkfor = (
             None if keys is None else
             ['escape', keys] if isinstance(keys, str) or isinstance(keys, unicode) else
             ['escape'] + keys.keys() if isinstance(keys, dict) else
             ['escape'] + list(keys))
         clearEvents()
+        v = None
         with self.timestamps(dkey):
             while True:
                 pressed = getKeys(checkfor)
@@ -524,10 +526,12 @@ class Task(object):
                     exit()
                 if len(pressed) == 1:
                     if isinstance(keys, dict):
-                        self.save(dkey, keys[pressed[0]])
+                        v = keys[pressed[0]]
+                        self.save(dkey, v)
                     break
                 self.draw(*stimuli)
         self.pause()
+        return v
 
     def discrete_rating_screen(self, dkey, string, **opts):
         self.scale_screen(dkey,
