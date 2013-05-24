@@ -130,6 +130,11 @@ def box(sizer_of, orientation, *contents):
     if sizer_of is not None: sizer_of.SetSizer(box)
     return box
 
+def okay(parent, default = False):
+    b = wx.Button(parent, wx.ID_OK)
+    if default: b.SetDefault()
+    return b
+
 class SchizoidDlg(Dlg):
     """A Dlg without a Cancel button and with the ability to
     set field widths."""
@@ -241,7 +246,7 @@ class QuestionnaireDialog(wx.Dialog):
 
         b = box(self, wx.VERTICAL,
             notebook,
-            (wx.Button(self, wx.ID_OK), 0, wx.ALIGN_CENTER_HORIZONTAL)).Fit(self)
+            (okay(self), 0, wx.ALIGN_CENTER_HORIZONTAL)).Fit(self)
 
 class PoisonPill: pass
 
