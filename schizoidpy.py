@@ -505,6 +505,30 @@ class Task(object):
         rs = [x.getRating() for x in scales]
         self.save(dkey, rs[0] if len(rs) == 1 else rs)
 
+    def keypress_screen(self, dkey, keys = None, *stimuli):
+        """Display some stimuli until the subject presses one of
+        the keys. 'keys' can be None, a string, a dictionary, or
+        some other iterable. If it's a dictionary, the
+        corresponding value is saved. The Escape key is reserved."""
+        checkfor = (
+            None if keys is None else
+            ['escape', keys] if isinstance(keys, str) or isinstance(keys, unicode) else
+            ['escape'] + keys.keys() if isinstance(keys, dict) else
+            ['escape'] + list(keys))
+        clearEvents()
+        with self.timestamps(dkey):
+            while True:
+                pressed = getKeys(checkfor)
+                clearEvents()
+                if 'escape' in pressed:
+                    exit()
+                if len(pressed) == 1:
+                    if isinstance(keys, dict):
+                        self.save(dkey, keys[pressed[0]])
+                    break
+                self.draw(*stimuli)
+        self.pause()
+
     def discrete_rating_screen(self, dkey, string, **opts):
         self.scale_screen(dkey,
             self.text(0, .3, string),
