@@ -214,7 +214,10 @@ class QuestionnaireDialog(wx.Dialog):
         wx.Dialog.__init__(self, parent, -1, title, wx.DefaultPosition)
 
         notebook = wx.Notebook(self, style = wx.BK_DEFAULT)
-        self.questions = deepcopy(questions)
+        self.questions = (
+            deepcopy(questions)
+            if isinstance(questions[0], dict)
+            else [{'id': k, 'text': v} for k, v in enumerate(questions)])
 
         for qn1 in range(0, len(questions), questions_per_page):
             panel = wx.Panel(notebook)
