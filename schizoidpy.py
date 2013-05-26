@@ -399,6 +399,9 @@ class Task(object):
     def start_clock(self):
         self.clock = Clock()
 
+    def set_pyglet_visible(self, visible = True):
+        self.win.winHandle.set_visible(visible)
+
     def trigger(self, code):
         if self.send_actiview_trigger_codes:
             self.trigger_queue.put(code)
