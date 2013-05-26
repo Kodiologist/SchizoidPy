@@ -478,11 +478,11 @@ class Task(object):
             self.okay_button_pos[1],
             'Next'),)))
 
-    def instructions(self, dkey, string, html = False):
+    def instructions(self, dkey, string, html = False, wrap = None):
         self.okay_screen(dkey,
-            self.html(0, .8, string, vAlign = 'top')
+            self.html(0, .8, string, vAlign = 'top', wrap = wrap)
               if html
-              else self.text(0, .8, string, vAlign = 'top'))
+              else self.text(0, .8, string, vAlign = 'top', wrap = wrap))
 
     def button_screen(self, dkey, *stimuli):
         """Display some stimuli (including at least one button)
