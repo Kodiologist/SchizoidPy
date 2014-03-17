@@ -472,6 +472,12 @@ class Task(object):
         self.draw(*stimuli)
         wait(time_to_wait)
 
+    def wait_screen_till(self, timer, *stimuli):
+        'Display some stimuli until the CountdownTimer reaches 0.'
+        if timer.getTime() > 0:
+            self.draw(*stimuli)
+            wait(timer.getTime())
+
     def okay_screen(self, dkey, *stimuli):
         self.button_screen(dkey, *(stimuli + (self.button(
             self.okay_button_pos[0],
