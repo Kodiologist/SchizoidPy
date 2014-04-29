@@ -297,10 +297,12 @@ class Task(object):
             double_draw = False,
               # Draw everything twice to work around
               # a graphics bug.
+            bg_color = 'white',
             button_radius = .1, # Norm units
             okay_button_pos = (0, -.5), # Norm units
             fixation_cross_length = 50, # Pixels
             fixation_cross_thickness = 5, # Pixels
+            fixation_cross_color = 'black',
             string_entry_box_y = -.4, # Norm units
             approx_dialog_box_width = 200, # Pixels
               # This option should be set to an estimate of how
@@ -330,13 +332,13 @@ class Task(object):
         self.win = Window((self.screen_width, self.screen_height),
             monitor = 'testMonitor',
             winType = 'pyglet', fullscr = False,
-            units = 'norm', color = 'white')
+            units = 'norm', color = bg_color)
         self.mouse = Mouse(win = self.win)
         self.fixation_cross = StimGroup((
-            Rect(self.win, fillColor = 'black', lineColor = 'black',
+            Rect(self.win, fillColor = fixation_cross_color, lineColor = fixation_cross_color,
                 units = 'pix',
                 width = self.fixation_cross_length, height = self.fixation_cross_thickness),
-            Rect(self.win, fillColor = 'black', lineColor = 'black',
+            Rect(self.win, fillColor = fixation_cross_color, lineColor = fixation_cross_color,
                 units = 'pix',
                 width = self.fixation_cross_thickness, height = self.fixation_cross_length)))
 
