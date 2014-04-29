@@ -608,10 +608,11 @@ class Task(object):
             dialog_error = 'Invalid number; please try again.',
             extractor = lambda s: s if s.isdigit() else None)
 
-    def questionnaire_screen(self, dkey, string, scale_levels, questions, questions_per_page = 8):
+    def questionnaire_screen(self, dkey, string, scale_levels, questions, questions_per_page = 8, prompt_color = 'black'):
         init_wx()
         qd = QuestionnaireDialog(None, '', scale_levels, questions, questions_per_page)
-        prompt = self.text(0, .9, string, vAlign = 'top', wrap = 1.5)
+        prompt = self.text(0, .9, string,
+            vAlign = 'top', wrap = 1.5, color = prompt_color)
         with self.timestamps(dkey):
             while True:
                 self.draw(prompt)
