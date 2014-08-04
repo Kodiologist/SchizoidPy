@@ -494,18 +494,21 @@ class Task(object):
 
     def button_screen(self, dkey, *stimuli):
         """Display some stimuli (including at least one button)
-        until the subject presses a button."""
+        until the subject presses a button. Return the pressed
+        button's string."""
         buttons = [x for x in stimuli if isinstance(x, Button)]
         with self.timestamps(dkey):
             while all([not x.activated() for x in buttons]):
                 if getKeys(['escape']): exit()
                 clearEvents()
                 self.draw(*stimuli)
+        val = [x for x in buttons if x.activated()][0].string
         if len(buttons) > 1:
           # No sense in saving the value of the button if there's
           # only one.
-            self.save(dkey, [x for x in buttons if x.activated()][0].string)
+            self.save(dkey, val)
         self.pause()
+        return val
 
     def scale_screen(self, dkey, *stimuli):
         """Display some stimuli (including at least one scale) until
