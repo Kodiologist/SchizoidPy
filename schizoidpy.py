@@ -304,6 +304,10 @@ class Task(object):
             double_draw = False,
               # Draw everything twice to work around
               # a graphics bug.
+            shrink_screen = False,
+              # Draw a slightly smaller screen to avoid a bug
+              # on Windows 7 involving some kind of automatic
+              # fullscreening.
             bg_color = 'white',
             button_radius = .1, # Norm units
             okay_button_pos = (0, -.5), # Norm units
@@ -345,6 +349,9 @@ class Task(object):
 
         pyglet_screen = pyglet.window.get_platform().get_default_display().get_default_screen()
         self.screen_width, self.screen_height = pyglet_screen.width, pyglet_screen.height
+        if self.shrink_screen:
+            self.screen_width -= 5
+            self.screen_height -= 5
         self.win = Window((self.screen_width, self.screen_height),
             monitor = 'testMonitor',
             winType = 'pyglet', fullscr = False,
