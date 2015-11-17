@@ -3,6 +3,7 @@
 from copy import deepcopy
 from datetime import datetime
 from socket import gethostname
+import os.path
 import json
 import numpy
 import wx
@@ -294,6 +295,11 @@ class Task(object):
             inpout32_addr = None,
             trigger_code_delay = .05, # Seconds
             pause_time = .1, # Seconds
+            debug_log_dir = None,
+              # Set it to a string to write a debug log. The
+              # debug log will have similar information as the
+              # final JSON output, but it's written line-by-line
+              # so you can read it if the task program crashes.
             double_draw = False,
               # Draw everything twice to work around
               # a graphics bug.
@@ -314,6 +320,14 @@ class Task(object):
         vs = locals()
         del vs['self']
         for k, v in vs.items(): setattr(self, k, v)
+
+        self.debug_log = None
+        if self.debug_log_dir:
+            self.debug_log = open(
+                os.path.join(self.debug_log_dir, 'debuglog-{}.txt'.format(
+                    datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S-%f'))),
+                'w',
+                buffering = 0)
 
         self.data = {}
         self.cur_dkey_prefix = ()
@@ -376,7 +390,10 @@ class Task(object):
                 seq = seq[k]
         elif isinstance(key, str):
             self.data[key] = value
-        else: raise KeyError
+        else:
+            raise KeyError
+        if self.debug_log is not None:
+            print >>self.debug_log, 'Saved', repr(key), '|||', repr(value)
 
     # The below are silly, I know, but
     #     with task.dkey_prefix("phooey"):
