@@ -325,6 +325,7 @@ class Task(object):
             self.trigger_worker = multiprocessing.Process(
                 target = trigger_worker, args = (self.trigger_queue, self.trigger_code_delay, inpout32_addr))
             self.trigger_worker.start()
+            self.save(('sys', 'trigger_worker_pid'), self.trigger_worker.pid)
             self.trigger(standard_actiview_trigger_codes['START_LISTENING'])
 
         pyglet_screen = pyglet.window.get_platform().get_default_display().get_default_screen()
@@ -344,6 +345,7 @@ class Task(object):
 
         self.save(('sys', 'hostname'), gethostname())
         self.save(('sys', 'resolution'), (self.screen_width, self.screen_height))
+        self.save(('sys', 'pid'), os.getpid())
 
         self.save(('overall_timing', 'started'), abs_timestamp_str())
 
