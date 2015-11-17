@@ -3,6 +3,7 @@
 from copy import deepcopy
 from datetime import datetime
 from socket import gethostname
+from time import sleep
 import os.path
 import json
 import numpy
@@ -266,9 +267,9 @@ def trigger_worker(queue, trigger_code_delay, inpout32_addr):
         if trigger_code == PoisonPill:
             return
         send(trigger_code)
-        wait(trigger_code_delay)
+        sleep(trigger_code_delay)
         send(standard_actiview_trigger_codes['RESET_PINS'])
-        wait(trigger_code_delay)
+        sleep(trigger_code_delay)
 
 # ------------------------------------------------------------
 # The Task class
