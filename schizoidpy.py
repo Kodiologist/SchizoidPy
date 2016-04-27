@@ -665,7 +665,7 @@ class Task(object):
                 dialog.addText('')
                 dialog.show()
 
-    def done(self, write_path):
+    def done(self, write_path, json_default = None):
     # We avoid self.save here in case we're inside a "with o.dkey_prefix".
         # Kill the trigger-code worker.
         if self.send_actiview_trigger_codes:
@@ -678,7 +678,8 @@ class Task(object):
         self.data['overall_timing']['done'] = abs_timestamp_str()
         # Write the data to disk.
         with open(write_path, "w") as out:
-            json.dump(self.data, out, sort_keys = True, indent = 2)
+            json.dump(self.data, out, sort_keys = True, indent = 2,
+                default = json_default)
             print >>out
 
     #####################
