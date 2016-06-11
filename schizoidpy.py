@@ -263,7 +263,10 @@ def trigger_worker(queue, trigger_code_delay, inpout32_addr):
         from psychopy.parallel import setData
         send = setData
     while True:
-        trigger_code = queue.get()
+        trigger_code = queue.get(True, int(1e6))
+          # The long timeout (11 days) is to work around a Python
+          # bug.
+          # http://stackoverflow.com/a/1408476
         if trigger_code == PoisonPill:
             return
         send(trigger_code)
