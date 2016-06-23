@@ -212,8 +212,15 @@ class SchizoidDlg(Dlg):
         return inputBox
 
 class QuestionnaireDialog(wx.Dialog):
-    def __init__(self, parent, title, scale_levels, questions, questions_per_page):
+    def __init__(self, parent, title, scale_levels,
+          questions, questions_per_page,
+          font_size = None, column_filler_width = 100):
         wx.Dialog.__init__(self, parent, -1, title, wx.DefaultPosition)
+
+        if font_size:
+            font = self.GetFont()
+            font.SetPointSize(font_size)
+            self.SetFont(font)
 
         notebook = wx.Notebook(self, style = wx.BK_DEFAULT)
         self.questions = (
@@ -229,7 +236,7 @@ class QuestionnaireDialog(wx.Dialog):
             # Add horizontal spaces to make all the response
             # columns the same width.
             fgs.Add(wx.Size(0, 0))
-            fgs.AddMany(len(scale_levels) * [wx.Size(100, 0)])
+            fgs.AddMany(len(scale_levels) * [wx.Size(column_filler_width, 0)])
             # Add the column headers.
             fgs.Add(wx.Size(0, 0))
             for s in scale_levels:
@@ -641,9 +648,14 @@ class Task(object):
             dialog_error = 'Invalid number; please try again.',
             extractor = lambda s: s if s.isdigit() else None)
 
-    def questionnaire_screen(self, dkey, string, scale_levels, questions, questions_per_page = 8, prompt_color = 'black'):
+    def questionnaire_screen(self, dkey, string, scale_levels,
+            questions, questions_per_page = 8,
+            column_filler_width = 100, font_size = None,
+            prompt_color = 'black'):
         init_wx()
-        qd = QuestionnaireDialog(None, '', scale_levels, questions, questions_per_page)
+        qd = QuestionnaireDialog(None, '', scale_levels,
+            questions, questions_per_page, font_size,
+            column_filler_width)
         prompt = self.text(0, .9, string,
             vAlign = 'top', wrap = 1.5, color = prompt_color)
         with self.timestamps(dkey):
