@@ -87,8 +87,8 @@ class hiding(object):
         self.task.implicitly_draw = self.old_implicitly_draw
 
 class Button(object):
-    def __init__(self, task, x, y, string, trigger_code = None):
-        self.task, self.x, self.y, self.string, self.trigger_code = task, x, y, string, trigger_code
+    def __init__(self, task, x, y, string, trigger_code = None, keybinding = None):
+        self.task, self.x, self.y, self.string, self.trigger_code, self.keybinding = task, x, y, string, trigger_code, keybinding
         self.circle = Circle(task.win,
             task.button_radius, pos = (x, y),
             lineColor = 'black', lineWidth = 3, edges = 64,
@@ -103,8 +103,9 @@ class Button(object):
     def activated(self):
         if self.was_pressed:
             return True
-        if (any(self.task.mouse.getPressed()) and
-            self.circle.contains(self.task.mouse)):
+        if ((any(self.task.mouse.getPressed())
+                    and self.circle.contains(self.task.mouse))
+                or self.keybinding and getKeys([self.keybinding])):
             self.was_pressed = True
             if self.trigger_code is not None:
                 self.task.trigger(self.trigger_code)
@@ -487,8 +488,8 @@ class Task(object):
         text._pygletTextObj = pyg
         return text
         
-    def button(self, x, y, string, trigger_code = None):
-        return Button(self, x, y, string, trigger_code)
+    def button(self, x, y, string, trigger_code = None, keybinding = None):
+        return Button(self, x, y, string, trigger_code, keybinding)
 
     def rating_scale(self, stretchHoriz = 1.75, **a): return RatingScale(self.win,
         textColor = 'black', lineColor = 'black',
@@ -521,7 +522,8 @@ class Task(object):
         self.button_screen(dkey, *(stimuli + (self.button(
             self.okay_button_pos[0],
             self.okay_button_pos[1],
-            'Next'),)))
+            'Next',
+            keybinding = 'return'),)))
 
     def instructions(self, dkey, string, html = False, wrap = None):
         self.okay_screen(dkey,
