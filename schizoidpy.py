@@ -536,6 +536,7 @@ class Task(object):
         until the subject presses a button. Return the pressed
         button's string."""
         buttons = [x for x in stimuli if isinstance(x, Button)]
+        clearEvents()
         with self.timestamps(dkey):
             while all([not x.activated() for x in buttons]):
                 if getKeys(['escape']): exit()
