@@ -266,7 +266,11 @@ class PoisonPill: pass
 def trigger_worker(queue, trigger_code_delay, inpout32_addr):
     if inpout32_addr is not None:
         from ctypes import windll
-        send = lambda x: windll.inpout32.Out32(inpout32_addr, x)
+        try:
+            dll = windll.inpoutx64
+        except WindowsError:
+            dll = windll.inpout32
+        send = lambda x: dll.Out32(inpout32_addr, x)
     else:
         from psychopy.parallel import setData
         send = setData
