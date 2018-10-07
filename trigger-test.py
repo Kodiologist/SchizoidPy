@@ -20,10 +20,10 @@ else:
     send = setData
 
 def trigger(trigger_code):
-    print "Sending", trigger_code
+    print("Sending", trigger_code)
     send(trigger_code)
     wait(trigger_code_delay)
-    print "Sending", standard_actiview_trigger_codes['RESET_PINS']
+    print("Sending", standard_actiview_trigger_codes['RESET_PINS'])
     send(standard_actiview_trigger_codes['RESET_PINS'])
     wait(trigger_code_delay)
 
@@ -35,4 +35,4 @@ for x in range(10):
 
 trigger(standard_actiview_trigger_codes['STOP_LISTENING'])
 
-print "Done"
+print("Done")

@@ -161,13 +161,13 @@ class SchizoidDlg(Dlg):
             thisVal = self.inputFields[n].GetValue()
             thisType= self.inputFieldTypes[n]
             #try to handle different types of input from strings
-            debug("%s: %s" %(self.inputFieldNames[n], unicode(thisVal)))
+            debug("%s: %s" %(self.inputFieldNames[n], str(thisVal)))
             if thisType in [tuple,list,float,int]:
                 #probably a tuple or list
                 exec("self.data.append("+thisVal+")")#evaluate it
             elif thisType==numpy.ndarray:
                 exec("self.data.append(numpy.array("+thisVal+"))")
-            elif thisType in [str,unicode,bool]:
+            elif thisType in [str,bool]:
                 self.data.append(thisVal)
             else:
                 warning('unknown type:'+self.inputFieldNames[n])
@@ -197,9 +197,9 @@ class SchizoidDlg(Dlg):
         else:
             inputLength = wx.Size(
                 width if width is not None else 
-                    max(50, 5*len(unicode(initial))+16),
+                    max(50, 5*len(str(initial))+16),
                 25)
-            inputBox = wx.TextCtrl(self,-1,unicode(initial),size=inputLength)
+            inputBox = wx.TextCtrl(self,-1,str(initial),size=inputLength)
         if len(color): inputBox.SetForegroundColour(color)
         if len(tip): inputBox.SetToolTip(wx.ToolTip(tip))
 
@@ -247,7 +247,7 @@ class QuestionnaireDialog(wx.Dialog):
                 wx.RadioButton(panel, pos = (-50, -50), style = wx.RB_GROUP)
                   # Create a hidden radio button so that it appears that no
                   # button is selected by default.
-                q['buttons'] = map(lambda _: wx.RadioButton(panel, -1), scale_levels)
+                q['buttons'] = [wx.RadioButton(panel, -1) for _ in scale_levels]
                 fgs.Add(wrapped_text(panel, q['text']), 0, wx.ALIGN_CENTER_VERTICAL)
                 for b in q['buttons']:
                     fgs.Add(b, 0, wx.ALIGN_CENTER)
@@ -416,7 +416,8 @@ class Task(object):
         else:
             raise KeyError
         if self.debug_log is not None:
-            print >>self.debug_log, 'Saved', repr(key), '|||', repr(value)
+            print('Saved', repr(key), '|||', repr(value),
+                file = self.debug_log)
 
     # The below are silly, I know, but
     #     with task.dkey_prefix("phooey"):
@@ -557,7 +558,7 @@ class Task(object):
     def scale_screen(self, dkey, *stimuli):
         """Display some stimuli (including at least one scale) until
         the subject has responded to all the scales."""
-        scales = filter(lambda x: isinstance(x, RatingScale), stimuli)
+        scales = [x for x in stimuli if isinstance(x, RatingScale)]
         clearEvents()
         with self.timestamps(dkey):
             while any([x.noResponse for x in scales]):
@@ -574,8 +575,8 @@ class Task(object):
         key is reserved."""
         checkfor = (
             None if keys is None else
-            ['escape', keys] if isinstance(keys, str) or isinstance(keys, unicode) else
-            ['escape'] + keys.keys() if isinstance(keys, dict) else
+            ['escape', keys] if isinstance(keys, str) else
+            ['escape'] + list(keys.keys()) if isinstance(keys, dict) else
             ['escape'] + list(keys))
         clearEvents()
         v = None
@@ -702,7 +703,7 @@ class Task(object):
         with open(write_path, "w") as out:
             json.dump(self.data, out, sort_keys = True, indent = 2,
                 default = json_default)
-            print >>out
+            print(file = out)
 
     #####################
     # Private
