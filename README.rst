@@ -6,6 +6,8 @@ Also included in this repository is ``trigger-test.py``, a script for checking w
 
 SchizoidPy began life as a spinoff of the generic functions in `Cookie`_.
 
+SchizoidPy only works with Python 2. There's a ``python3`` branch, but it doesn't actually work, because it's written against wxPython 3, which is backwards-incompatible with wxPython 4, and wxPython 3 doesn't support Python 3. Moreover, wxPython 4 isn't compatible with pyglet, which is the only fully functional backend for PsychoPy as of this writing (11 Oct 2018).
+
 License
 ============================================================
 
