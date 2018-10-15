@@ -10,7 +10,7 @@ import numpy
 import wx
 import pyglet
 from psychopy.monitors import Monitor
-import psychopy.gui; from psychopy.gui import Dlg
+import psychopy.gui.wxgui
 from psychopy.core import Clock, wait
 from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
@@ -112,11 +112,11 @@ class Button(object):
             return True
         return False
 
+wx_app = None
 def init_wx():
-    if not hasattr(psychopy.gui, 'app'):
-        psychopy.gui.app = wx.PySimpleApp()
-          # This is what PsychoPy does if you make a Dlg before
-          # a wx.App exists.
+    global wx_app
+    if wx_app is None:
+        wx_app = wx.App()
 
 wx_text_wrap_width = 300
 def wrapped_text(parent, string):
@@ -138,7 +138,7 @@ def okay(parent, default = False):
     if default: b.SetDefault()
     return b
 
-class SchizoidDlg(Dlg):
+class SchizoidDlg(psychopy.gui.wxgui.Dlg):
     """A Dlg without a Cancel button and with the ability to
     set field widths."""
     # Initially copied from psychopy.gui (which is copyright
@@ -380,6 +380,8 @@ class Task(object):
                 units = 'pix',
                 width = self.fixation_cross_thickness, height = self.fixation_cross_length)))
 
+        init_wx()
+
         self.save(('sys', 'hostname'), gethostname())
         self.save(('sys', 'resolution'), (self.screen_width, self.screen_height))
         self.save(('sys', 'pid'), os.getpid())
@@ -451,7 +453,7 @@ class Task(object):
             self.trigger_queue.put(code)
 
     def get_subject_id(self, window_title):
-        dialog = Dlg(title = window_title)
+        dialog = psychopy.gui.wxgui.Dlg(title = window_title)
         dialog.addText('')
         dialog.addField('Subject ID:', 'test')
         dialog.addText('')
@@ -659,7 +661,6 @@ class Task(object):
             questions, questions_per_page = 8,
             column_filler_width = 100, font_size = None,
             prompt_color = 'black'):
-        init_wx()
         qd = QuestionnaireDialog(None, '', scale_levels,
             questions, questions_per_page, font_size,
             column_filler_width)
