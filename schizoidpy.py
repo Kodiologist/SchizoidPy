@@ -619,7 +619,7 @@ class Task(object):
                 dialog = SchizoidDlg(
                     title = 'Entry',
                     pos = (
-                        self.screen_width/2 - self.approx_dialog_box_width,
+                        self.screen_width/2 - self.approx_dialog_box_width/2,
                         self.screen_height/2 - self.string_entry_box_y * self.screen_height/2))
                 dialog.addText(' ' * 45)
                 dialog.addField(dialog_field_label, width = width)
