@@ -15,7 +15,8 @@ from psychopy.core import Clock, wait
 from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
 from psychopy.visual import \
-    Window, Rect, Circle, TextStim, RatingScale
+    Window, Rect, Circle, TextStim
+from psychopy.visual.ratingscale import RatingScale
 
 standard_actiview_trigger_codes = dict(
     START_LISTENING = 255,
