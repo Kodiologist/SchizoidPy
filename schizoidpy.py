@@ -498,22 +498,6 @@ class Task(object):
     def button(self, x, y, string, trigger_code = None, keybinding = None):
         return Button(self, x, y, string, trigger_code, keybinding)
 
-    def rating_scale(self, stretchHoriz = 1.75, **a): return RatingScale(self.win,
-        textColor = 'black', lineColor = 'black',
-        markerStyle = 'circle', markerColor = 'darkgreen',
-        stretchHoriz = stretchHoriz,
-        showValue = False, allowSkip = False, showScale = False,
-        escapeKeys = ['escape'], singleClick = True, showAccept = False,
-        **a)
-
-    def likert_scale(self, x = 0, y = -.7,
-            scale_points = 7,
-            anchors = ('min', 'max')):
-        return self.rating_scale(
-            pos = (x, y),
-            low = 1, lowAnchorText = anchors[0],
-            high = scale_points, highAnchorText = anchors[1])
-
     def wait_screen(self, time_to_wait, *stimuli):
         'Display some stimuli for a given amount of time.'
         self.draw(*stimuli)
@@ -596,11 +580,6 @@ class Task(object):
                 self.draw(*stimuli)
         self.pause()
         return v
-
-    def discrete_rating_screen(self, dkey, string, **opts):
-        self.scale_screen(dkey,
-            self.text(0, .3, string),
-            self.likert_scale(**opts))
 
     def string_entry_screen(self, dkey, prompt,
             dialog_field_label, dialog_hint, dialog_error,
