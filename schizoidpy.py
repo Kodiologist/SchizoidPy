@@ -1,5 +1,6 @@
 # encoding: UTF-8
 
+from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime
 from socket import gethostname
@@ -112,6 +113,8 @@ class Button(object):
                 self.task.trigger(self.trigger_code)
             return True
         return False
+
+TriggerKey = namedtuple('TriggerKey', ['value', 'trigger_code'])
 
 wx_app = None
 def init_wx():
@@ -557,8 +560,9 @@ class Task(object):
         """Display some stimuli until the subject presses one of
         the keys. 'keys' can be None, a string, a dictionary, or
         some other iterable. If it's a dictionary, the
-        corresponding value is saved (and returned). The Escape
-        key is reserved."""
+        corresponding value is saved (and returned). (Set a dictionary
+        value to a TriggerKey to also emit an EEG trigger code.)
+        The Escape key is reserved."""
         checkfor = (
             None if keys is None else
             ['escape', keys] if isinstance(keys, str) or isinstance(keys, unicode) else
@@ -575,7 +579,11 @@ class Task(object):
                 if len(pressed) == 1:
                     if isinstance(keys, dict):
                         v = keys[pressed[0]]
-                        self.save(dkey, v)
+                        if isinstance(v, TriggerKey):
+                            self.trigger(v.trigger_code)
+                            self.save(dkey, v.value)
+                        else:
+                            self.save(dkey, v)
                     break
                 self.draw(*stimuli)
         self.pause()
