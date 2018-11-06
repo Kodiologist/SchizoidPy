@@ -12,7 +12,7 @@ import wx
 import pyglet
 from psychopy.monitors import Monitor
 import psychopy.gui.wxgui
-from psychopy.core import Clock, wait
+from psychopy.core import Clock, CountdownTimer, wait
 from psychopy.logging import debug, warning
 from psychopy.event import Mouse, getKeys, clearEvents
 from psychopy.visual import \
@@ -465,8 +465,11 @@ class Task(object):
         if not dialog.OK: exit()
         self.save('subject', dialog.data[0])
 
-    def pause(self):
-        wait(self.pause_time)
+    def pause(self, timer = None):
+        if timer is None:
+            wait(self.pause_time)
+        elif timer.getTime() > 0:
+            wait(min(timer.getTime(), self.pause_time))
 
     def text(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black'):
         return TextStim(self.win,
@@ -558,35 +561,63 @@ class Task(object):
 
     def keypress_screen(self, dkey, keys = None, *stimuli):
         """Display some stimuli until the subject presses one of
-        the keys. 'keys' can be None, a string, a dictionary, or
-        some other iterable. If it's a dictionary, the
-        corresponding value is saved (and returned). (Set a dictionary
-        value to a TriggerKey to also emit an EEG trigger code.)
+        the keys.
+
+        'keys' can be None, a string, a dictionary, or some other
+        iterable. If it's a dictionary, the corresponding value
+        is saved (and returned). (Set a dictionary value to a
+        TriggerKey to also emit an EEG trigger code.)
+
+        A key can be a CountdownTimer instead of the string name
+        of a keyboard key, in which case the timer ending acts as
+        if a key was pressed. (Only one timer is recognized.)
+
         The Escape key is reserved."""
+
         checkfor = (
             None if keys is None else
             ['escape', keys] if isinstance(keys, str) or isinstance(keys, unicode) else
             ['escape'] + keys.keys() if isinstance(keys, dict) else
             ['escape'] + list(keys))
+
+        def use_key(k):
+            if not isinstance(keys, dict):
+                return
+            v = keys[k]
+            if isinstance(v, TriggerKey):
+                self.trigger(v.trigger_code)
+                self.save(dkey, v.value)
+            else:
+                self.save(dkey, v)
+
+        timer = None
+        for x in checkfor:
+            if isinstance(x, CountdownTimer):
+               timer = x
+               checkfor.remove(timer)
+               if timer.getTime() <= 0:
+                   use_key(timer)
+                   return
+               break
+
         clearEvents()
         v = None
         with self.timestamps(dkey):
             while True:
+                if timer is not None and timer.getTime() <= 0:
+                   use_key(timer)
+                   return
                 pressed = getKeys(checkfor)
                 clearEvents()
                 if 'escape' in pressed:
                     exit()
                 if len(pressed) == 1:
-                    if isinstance(keys, dict):
-                        v = keys[pressed[0]]
-                        if isinstance(v, TriggerKey):
-                            self.trigger(v.trigger_code)
-                            self.save(dkey, v.value)
-                        else:
-                            self.save(dkey, v)
+                    use_key(pressed[0])
+                    v = keys[pressed[0]]
                     break
                 self.draw(*stimuli)
-        self.pause()
+
+        self.pause(timer)
         return v
 
     def string_entry_screen(self, dkey, prompt,
