@@ -453,7 +453,7 @@ class Task(object):
         self.win.winHandle.set_visible(visible)
 
     def trigger(self, code):
-        if self.send_actiview_trigger_codes:
+        if self.send_actiview_trigger_codes and code is not None:
             self.trigger_queue.put(code)
 
     def get_subject_id(self, window_title):
