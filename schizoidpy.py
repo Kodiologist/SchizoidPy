@@ -471,10 +471,10 @@ class Task(object):
         elif timer.getTime() > 0:
             wait(min(timer.getTime(), self.pause_time))
 
-    def text(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black'):
+    def text(self, x, y, string, hAlign = 'center', vAlign = 'center', wrap = None, color = 'black', height = .075):
         return TextStim(self.win,
             text = string, pos = (x, y), color = color,
-            height = .075, font = self.font_name,
+            height = height, font = self.font_name,
             alignHoriz = hAlign, alignVert = vAlign,
             wrapWidth = wrap)
 
