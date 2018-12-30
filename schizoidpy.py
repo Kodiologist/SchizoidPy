@@ -586,9 +586,9 @@ class Task(object):
             v = keys[k]
             if isinstance(v, TriggerKey):
                 self.trigger(v.trigger_code)
-                self.save(dkey, v.value)
-            else:
-                self.save(dkey, v)
+                v = v.value
+            self.save(dkey, v)
+            return v
 
         timer = None
         for x in checkfor:
@@ -612,8 +612,7 @@ class Task(object):
                 if 'escape' in pressed:
                     exit()
                 if len(pressed) == 1:
-                    use_key(pressed[0])
-                    v = keys[pressed[0]]
+                    v = use_key(pressed[0])
                     break
                 self.draw(*stimuli)
 
