@@ -616,7 +616,6 @@ class Task(object):
                     break
                 self.draw(*stimuli)
 
-        self.pause(timer)
         return v
 
     def string_entry_screen(self, dkey, prompt,
