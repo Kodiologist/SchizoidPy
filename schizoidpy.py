@@ -555,7 +555,6 @@ class Task(object):
         with self.timestamps(dkey):
             while any([x.noResponse for x in scales]):
                 self.draw(*stimuli)
-        self.pause()
         rs = [x.getRating() for x in scales]
         self.save(dkey, rs[0] if len(rs) == 1 else rs)
 
