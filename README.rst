@@ -11,7 +11,7 @@ SchizoidPy only works with Python 2. There's a ``python3`` branch, but it doesn'
 License
 ============================================================
 
-This program is copyright 2012–2018 Kodi Arfer.
+This program is copyright 2012–2019 Kodi Arfer.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
